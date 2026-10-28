@@ -17,5 +17,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run catalogo:validar
+      - run: npm run catalogo:importar -- --entrada docs/fuentes/Estructura_de_carga_PDA-2.xlsx --salida /tmp/catalogo.csv
       - run: npm run catalogo:validar -- --entrada ejemplos/catalogo.csv
       - run: npm run matriz -- --entrada ejemplos/compromisos.csv --catalogo ejemplos/catalogo.csv --corte 2026-11-13

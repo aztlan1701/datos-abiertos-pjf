@@ -8,7 +8,7 @@ Repositorio privado. Contiene información administrativa (matriz de compromisos
 
 | Módulo | Contenido | Estado |
 |---|---|---|
-| `catalogo/` | Catálogo maestro de conjuntos (CSV), validador y cálculo del IND-5 | Listo |
+| `catalogo/` | Catálogo maestro (CSV), importador de la estructura de carga, validador e IND-5 | Listo; 26 conjuntos importados, pendientes de depurar |
 | `matriz/` | Matriz de compromisos (CSV maestro) y generación del XLSX con corte | Listo |
 | `metadatos/` | Plantilla DCAT (JSON) y fichas descriptivas | Pendiente |
 | `validacion/` | Reporte de calidad por conjunto | Pendiente |
@@ -24,6 +24,7 @@ Requiere Node.js 22 o superior.
 
 ```sh
 npm ci
+npm run catalogo:importar -- --entrada docs/fuentes/Estructura_de_carga_PDA-2.xlsx
 npm run catalogo:validar                    # valida catalogo/catalogo.csv
 npm run indicador -- --corte 2026-12-11     # IND-5 a la fecha de corte
 npm run matriz -- --corte 2026-11-13        # genera salidas/matriz_compromisos_corte_2026-11-13.xlsx
@@ -47,22 +48,31 @@ Los archivos de `salidas/` no se versionan.
 
 ## Catálogo (`catalogo/catalogo.csv`)
 
-| Columna | Valores |
-|---|---|
-| `id` | Identificador único: minúsculas, números y guiones (`est-mensual`) |
-| `conjunto` | Nombre del conjunto de datos |
-| `descripcion` | Descripción breve |
-| `area_generadora` | Área que produce la información |
-| `area_custodia` | Área que resguarda el sistema o la base |
-| `sistema_origen` | `DGTI`, `DGEJ` u otro (sirve para priorizar conjuntos que ya existen en sistemas) |
-| `formatos` | Separados por `\|`: `CSV`, `JSON`, `XML`, `XLSX`. El PAT 2026 compromete CSV y JSON |
-| `prioridad` | `alta`, `media` o `baja` |
-| `viable` | `2026` (programado en el PAT 2026) o `2027` |
-| `frecuencia` | Frecuencia de actualización |
-| `publicado` | `si` o `no` |
-| `fecha_publicacion` | AAAA-MM-DD; obligatoria si `publicado` es `si` |
-| `url_publicacion` | Dirección del conjunto en el portal |
-| `observaciones` | Texto libre |
+Se carga desde la «Estructura de carga» del portal con `npm run catalogo:importar`. La fuente vigente es [`docs/fuentes/Estructura_de_carga_PDA-2.xlsx`](docs/fuentes/Estructura_de_carga_PDA-2.xlsx). Al reimportar una versión nueva, los conjuntos se emparejan por `id_origen`: se actualizan los campos de la estructura y se conservan el `id` y los campos de planeación. Ningún conjunto se elimina. La columna `url_descarga` del XLSX apunta a carpetas internas de SharePoint y no se importa.
+
+| Columna | Origen | Valores |
+|---|---|---|
+| `id` | Generado | Identificador único: minúsculas, números y guiones (`padron-personas-proveedoras-contratistas`) |
+| `id_origen` | `Id` | Número del conjunto en la estructura de carga |
+| `categoria` | `categoria_conjunto` | Categoría temática del portal |
+| `conjunto` | `nombre_conjunto` | Nombre del conjunto de datos |
+| `descripcion` | `descripcion_conjunto` | Descripción breve |
+| `descripcion_ciudadana` | `descripción en lenguaje ciudadano` | Texto para la ficha del portal |
+| `palabras_clave` | `palabras_clave` | Separadas por `\|` |
+| `area_generadora` | `area_responsable` | Área que produce la información; «Varios» genera aviso |
+| `area_custodia` | Planeación | Área que resguarda el sistema o la base |
+| `sistema_origen` | Planeación | `DGTI`, `DGEJ` u otro (sirve para priorizar conjuntos que ya existen en sistemas) |
+| `formatos` | `formato_descarga` | Separados por `\|`: `CSV`, `JSON`, `XML`, `XLS`, `XLSX`. El PAT 2026 compromete CSV y JSON |
+| `frecuencia` | `frecuencia_actualizacion` | Frecuencia de actualización |
+| `fecha_creacion`, `fecha_actualizacion` | Estructura de carga | AAAA-MM-DD |
+| `prioridad` | Planeación | `alta`, `media` o `baja` |
+| `viable` | Planeación | `2026` (programado en el PAT 2026) o `2027` |
+| `publicado` | Planeación | `si` o `no` |
+| `fecha_publicacion` | Planeación | AAAA-MM-DD; obligatoria si `publicado` es `si` |
+| `url_publicacion` | Planeación | Dirección pública del conjunto en el portal |
+| `observaciones` | Planeación | Texto libre |
+
+`prioridad`, `viable` y `publicado` se definen en la depuración del catálogo (bloque 2); mientras estén vacíos, el validador emite avisos y el IND-5 no cuenta esos conjuntos como programados.
 
 **IND-5** (DGETD-LG04SL06-AE04PE05PO05) = (conjuntos publicados / conjuntos programados) × 100. Programados: `viable = 2026`. Publicados: de esos, los que tienen `publicado = si` y `fecha_publicacion` igual o anterior al corte.
 

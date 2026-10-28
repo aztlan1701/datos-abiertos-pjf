@@ -26,6 +26,8 @@ const { filas, errores } = catalogo;
 if (errores.length) salirConErrores(["El catálogo tiene errores; ejecute npm run catalogo:validar", ...errores]);
 
 const ind = calcularIndicador(filas, corte);
+if (ind.sinViabilidad)
+  console.warn(`! ${ind.sinViabilidad} conjuntos sin viabilidad definida no cuentan como programados`);
 if (ind.valor === null) salirConErrores(["No hay conjuntos programados (viable = 2026) en el catálogo"]);
 
 console.log(`IND-5 · corte al ${fechaLarga(corte)}`);

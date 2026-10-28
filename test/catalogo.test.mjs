@@ -51,10 +51,12 @@ test("IND-5 cuenta solo conjuntos 2026 publicados al corte", () => {
     conj({ id: "d" }),
     conj({ id: "e", viable: "2027", publicado: "si", fecha_publicacion: "2026-01-01" }),
   ];
-  assert.deepEqual(
-    { ...calcularIndicador(filas, "2026-06-30"), pendientes: undefined },
-    { corte: "2026-06-30", programados: 4, publicados: 1, valor: 25, pendientes: undefined },
-  );
+  const ind = calcularIndicador([...filas, conj({ id: "f", viable: "" })], "2026-06-30");
+  assert.equal(ind.programados, 4);
+  assert.equal(ind.publicados, 1);
+  assert.equal(ind.valor, 25);
+  assert.equal(ind.sinViabilidad, 1);
+  assert.deepEqual(ind.pendientes, ["b", "c", "d"]);
   assert.equal(calcularIndicador(filas, "2026-12-11").valor, 50);
   assert.equal(calcularIndicador([], "2026-12-11").valor, null);
 });
@@ -76,4 +78,11 @@ test("los ejemplos y las plantillas vacías son válidos", () => {
     assert.deepEqual(m.errores, [], ruta);
     assert.ok(!m.avisos.some((a) => a.includes("no existe en el catálogo")), ruta);
   }
+});
+
+test("los campos de planeación vacíos y el área «Varios» generan avisos, no errores", () => {
+  const { errores, avisos } = validarCatalogo([conj({ prioridad: "", viable: "", publicado: "", area_generadora: "Varios" })]);
+  assert.deepEqual(errores, []);
+  assert.ok(avisos.some((a) => a.includes("pendiente de depurar: prioridad, viable, publicado")));
+  assert.ok(avisos.some((a) => a.includes("«Varios»")));
 });

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Herramientas internas del PE-5 (PAT 2026 DGETD): catálogo, matriz de compromisos e indicador IND-5.",
   "scripts": {
+    "catalogo:importar": "node catalogo/importar.mjs",
     "catalogo:validar": "node catalogo/validar.mjs",
     "matriz": "node matriz/generar.mjs",
     "indicador": "node catalogo/indicador.mjs",

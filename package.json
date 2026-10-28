@@ -1,0 +1,22 @@
+{
+  "name": "datos-abiertos-pjf",
+  "version": "0.1.0",
+  "description": "Herramientas internas del PE-5 (PAT 2026 DGETD): catálogo, matriz de compromisos e indicador IND-5.",
+  "scripts": {
+    "catalogo:validar": "node catalogo/validar.mjs",
+    "matriz": "node matriz/generar.mjs",
+    "indicador": "node catalogo/indicador.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "csv-parse": "^5.6.0",
+    "csv-stringify": "^6.9.0",
+    "exceljs": "^4.4.0"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules/
+salidas/*
+!salidas/.gitkeep
+.DS_Store
+~$*.xlsx

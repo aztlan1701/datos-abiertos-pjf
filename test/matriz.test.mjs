@@ -74,3 +74,34 @@ test("el XLSX lleva el título de la evidencia, el corte y fechas reales", async
   assert.equal(hoja.getCell("H7").value, ESTATUS.VENCIDO);
   assert.ok(libro.getWorksheet("Resumen"));
 });
+
+test("normaliza el estatus manual sin importar mayúsculas ni acentos", () => {
+  for (const e of ["cancelado", "CANCELADO", " Cancelado "])
+    assert.equal(calcularEstatus(c("2026-01-01", "", { estatus: e }), "2026-11-13"), ESTATUS.CANCELADO, e);
+});
+
+test("un estatus desconocido es error para no borrar lo capturado", () => {
+  const { errores } = validarMatriz([c("2026-11-27", "", { estatus: "Reprogramado" })]);
+  assert.ok(errores.some((e) => e.includes("Reprogramado")));
+});
+
+test("la cancelación y los compromisos posteriores al corte no cuentan en cortes pasados", () => {
+  const cancelado = c("2026-06-15", "", { estatus: "Cancelado", fecha_cancelacion: "2026-11-10" });
+  assert.equal(calcularEstatus(cancelado, "2026-06-30"), ESTATUS.VENCIDO);
+  assert.equal(calcularEstatus(cancelado, "2026-11-13"), ESTATUS.CANCELADO);
+  const r = resumirMatriz([c("2026-05-01", "2026-04-30"), c("2026-11-27", "", { fecha_registro: "2026-11-10" })], "2026-06-30");
+  assert.equal(r.total, 1);
+  assert.equal(r.registradosDespues, 1);
+});
+
+test("el XLSX de un corte pasado declara la fecha de elaboración y la observación", async () => {
+  const libro = await generarXlsxMatriz([c("2026-05-01")], "2026-06-30", {
+    elaboracion: "2026-10-28",
+    observacion: "La matriz dejó de actualizarse en abril.",
+  });
+  const hoja = libro.getWorksheet("Matriz");
+  assert.equal(hoja.getCell("A3").value, "Corte al 30 de junio de 2026 · Elaborada el 28 de octubre de 2026");
+  assert.equal(hoja.getCell("A4").value, "Observación registrada el 28 de octubre de 2026: La matriz dejó de actualizarse en abril.");
+  const mismoDia = await generarXlsxMatriz([c("2026-05-01")], "2026-10-28", { elaboracion: "2026-10-28" });
+  assert.equal(mismoDia.getWorksheet("Matriz").getCell("A3").value, "Corte al 28 de octubre de 2026");
+});

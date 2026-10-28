@@ -4,6 +4,7 @@
 //   npm run indicador -- --corte 2026-12-11
 import { existsSync } from "node:fs";
 import { leerArgs, salirConErrores } from "../lib/args.mjs";
+import { ErrorCodificacion } from "../lib/csv.mjs";
 import { cargarCatalogo, calcularIndicador } from "../lib/catalogo.mjs";
 import { esFechaValida, fechaLarga, hoyIso } from "../lib/fechas.mjs";
 
@@ -14,7 +15,14 @@ const entrada = args.entrada ?? "catalogo/catalogo.csv";
 if (!esFechaValida(corte)) salirConErrores([`--corte debe tener el formato AAAA-MM-DD (recibido: ${corte})`]);
 if (!existsSync(entrada)) salirConErrores([`No existe ${entrada}`]);
 
-const { filas, errores } = cargarCatalogo(entrada);
+let catalogo;
+try {
+  catalogo = cargarCatalogo(entrada);
+} catch (e) {
+  if (e instanceof ErrorCodificacion) salirConErrores([e.message]);
+  throw e;
+}
+const { filas, errores } = catalogo;
 if (errores.length) salirConErrores(["El catálogo tiene errores; ejecute npm run catalogo:validar", ...errores]);
 
 const ind = calcularIndicador(filas, corte);

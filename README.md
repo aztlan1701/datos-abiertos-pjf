@@ -30,12 +30,17 @@ npm run matriz -- --corte 2026-11-13        # genera salidas/matriz_compromisos_
 npm test
 ```
 
-Sin `--corte`, se usa la fecha del día en la Ciudad de México. Todos los comandos aceptan `--entrada <ruta>` para trabajar con otro archivo; `matriz` acepta además `--catalogo <ruta>`, `--salida <carpeta>` y `--actualizar` (reescribe la columna `estatus` en el CSV maestro).
+Sin `--corte`, se usa la fecha del día en la Ciudad de México. Todos los comandos aceptan `--entrada <ruta>` para trabajar con otro archivo. `matriz` acepta además:
+
+- `--catalogo <ruta>` y `--salida <carpeta>`.
+- `--observacion "texto"`: agrega al XLSX la línea «Observación registrada el [fecha de hoy]: texto».
+- `--actualizar`: reescribe la columna `estatus` del CSV maestro. Solo se permite con el corte de hoy y conserva todas las columnas del archivo.
 
 Para probar con datos de ejemplo:
 
 ```sh
-npm run matriz -- --entrada ejemplos/compromisos.csv --catalogo ejemplos/catalogo.csv --corte 2026-06-30
+npm run matriz -- --entrada ejemplos/compromisos.csv --catalogo ejemplos/catalogo.csv --corte 2026-06-30 \
+  --observacion "La matriz dejó de actualizarse el 28 de abril de 2026; se reconstruye con las fechas registradas."
 ```
 
 Los archivos de `salidas/` no se versionan.
@@ -65,6 +70,11 @@ Los archivos de `salidas/` no se versionan.
 
 Columnas: `area_generadora`, `conjunto_id` (el `id` del catálogo), `conjunto`, `formato_requerido`, `fecha_comprometida`, `fecha_entrega_efectiva`, `estatus`, `observaciones`.
 
+Columnas opcionales, necesarias para reconstruir cortes pasados con lo que se sabía a esa fecha:
+
+- `fecha_registro`: fecha en que se acordó el compromiso. Los registrados después del corte no aparecen en ese corte.
+- `fecha_cancelacion`: fecha en que se canceló. Antes de esa fecha, el compromiso conserva su estatus calculado.
+
 El estatus se recalcula a la fecha de corte:
 
 | Estatus | Regla |
@@ -74,9 +84,11 @@ El estatus se recalcula a la fecha de corte:
 | En plazo | Sin entrega y el corte no ha rebasado la fecha comprometida |
 | Vencido | Sin entrega y el corte rebasó la fecha comprometida |
 | Sin fecha comprometida | Sin entrega ni fecha comprometida |
-| Cancelado | Se captura a mano y se respeta |
+| Cancelado | Se captura a mano (sin importar mayúsculas ni acentos) y se respeta |
 
-Una entrega posterior a la fecha de corte no cuenta en ese corte. Así puede reconstruirse una matriz pasada (por ejemplo, con corte al 30 de junio) a partir del mismo CSV.
+La columna `estatus` solo admite los valores de la tabla o la celda vacía; cualquier otro texto detiene el comando para no borrar lo capturado.
+
+Una entrega, una cancelación o un registro posteriores a la fecha de corte no cuentan en ese corte. Así puede reconstruirse una matriz pasada (por ejemplo, con corte al 30 de junio) a partir del mismo CSV. Cuando el corte es anterior a la fecha de elaboración, el XLSX lo declara («Corte al 30 de junio de 2026 · Elaborada el 28 de octubre de 2026»). Si la matriz dejó de actualizarse, agregue la observación fechada con `--observacion`.
 
 El XLSX tiene dos hojas: **Matriz**, con el título de la evidencia del PAT («Matriz de compromisos actualizada con estatus de entrega»), y **Resumen**, con el conteo por estatus, el porcentaje de cumplimiento y el avance por área.
 
@@ -84,5 +96,5 @@ El XLSX tiene dos hojas: **Matriz**, con el título de la evidencia del PAT («M
 
 - Español, registro formal de administración pública, salidas concisas.
 - Los títulos de las evidencias son idénticos a los del PAT.
-- CSV en UTF-8; las herramientas aceptan el BOM que agrega Excel.
+- CSV en UTF-8. En Excel: Archivo › Guardar como › «CSV UTF-8 (delimitado por comas)». Un archivo en otra codificación se rechaza para no corromper los acentos. Las filas vacías que deja Excel al final se ignoran.
 - Fechas en formato AAAA-MM-DD.

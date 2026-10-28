@@ -1,7 +1,7 @@
-area_generadora,conjunto_id,conjunto,formato_requerido,fecha_comprometida,fecha_entrega_efectiva,estatus,observaciones
-Dirección General de Estadística Judicial,est-mensual,Estadística mensual jurisdiccional,CSV|JSON,2026-03-15,2026-03-12,,Registro de ejemplo
-Dirección General de Estadística Judicial,censo-judicial,Censo de órganos jurisdiccionales,CSV|JSON,2026-04-10,2026-04-14,,Registro de ejemplo
-Coordinación de Compilación y Sistematización de Tesis,sent-pub,Sentencias en versión pública,CSV|JSON,2026-05-29,,,Registro de ejemplo
-Coordinación de Compilación y Sistematización de Tesis,tesis,Tesis y jurisprudencia,CSV|JSON,2026-11-27,2026-11-20,,Registro de ejemplo
-Secretaría Técnica,acuerdos-gen,Acuerdos generales,CSV|JSON,2026-11-27,,,Registro de ejemplo
-Contraloría,declaraciones,Declaraciones patrimoniales,CSV|JSON,,,Cancelado,Registro de ejemplo; reprogramado para 2027
+area_generadora,conjunto_id,conjunto,formato_requerido,fecha_comprometida,fecha_entrega_efectiva,estatus,observaciones,fecha_registro,fecha_cancelacion
+Dirección General de Estadística Judicial,est-mensual,Estadística mensual jurisdiccional,CSV|JSON,2026-03-15,2026-03-12,,Registro de ejemplo,2026-02-02,
+Dirección General de Estadística Judicial,censo-judicial,Censo de órganos jurisdiccionales,CSV|JSON,2026-04-10,2026-04-14,,Registro de ejemplo,2026-02-02,
+Coordinación de Compilación y Sistematización de Tesis,sent-pub,Sentencias en versión pública,CSV|JSON,2026-05-29,,,Registro de ejemplo,2026-02-02,
+Coordinación de Compilación y Sistematización de Tesis,tesis,Tesis y jurisprudencia,CSV|JSON,2026-11-27,,,Registro de ejemplo,2026-11-10,
+Secretaría Técnica,acuerdos-gen,Acuerdos generales,CSV|JSON,2026-11-27,,,Registro de ejemplo,2026-11-10,
+Contraloría,declaraciones,Declaraciones patrimoniales,CSV|JSON,2026-06-15,,Cancelado,Registro de ejemplo; reprogramado para 2027,2026-02-02,2026-11-10
